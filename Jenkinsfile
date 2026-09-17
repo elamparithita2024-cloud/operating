@@ -1,22 +1,28 @@
 pipeline {
     agent any
-    parameters {
-        choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'prod'], description: 'Select the deployment environment')
-    }
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/elamparithita2024-cloud/pipeline.git'
+                git branch: 'main', url: 'https://github.com/elamparithita2024-cloud/operating.git'
             }
         }
-        stage('Show Parameter') {
-            steps {
-                echo "Selected environment: ${params.ENVIRONMENT}"
+        stage('Parallel Checks') {
+            parallel {
+                stage('Frontend Check') {
+                    steps {
+                        bat 'python frontend_check.py'
+                    }
+                }
+                stage('Backend Check') {
+                    steps {
+                        bat 'python backend_check.py'
+                    }
+                }
             }
         }
-        stage('Build for Environment') {
+        stage('Summary') {
             steps {
-                echo "Building the application for the ${params.ENVIRONMENT} environment..."
+                echo 'Both frontend and backend checks are complete.'
             }
         }
     }
